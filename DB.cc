@@ -63,7 +63,7 @@ void DB::add_table(Table* T) {
 }
 
 std::string DB::create(void) {
-  std::string sql_query = toUpper(std::string("\ndrop database if exists "), upper);
+  std::string sql_query = toUpper(std::string("drop database if exists "), upper);
   sql_query += name + toUpper(std::string(";\ncreate database "), upper);
   sql_query += name + toUpper(std::string(";\nuse "), upper);
   sql_query += name + std::string(";\n");
@@ -79,4 +79,39 @@ std::string DB::insert(unsigned int count) {
 	  sql_query += table->insert(count);
   }
   return sql_query;
+}
+
+std::string DB::use(void) {
+	return toUpper(std::string("use "), upper) + name + std::string(";\n");
+}
+
+std::string DB::migrate(Table* T1, std::vector<std::string> fields, Table* T2, std::string name) {
+	for(std::string field : fields) {
+		std::vector<Field>::iterator it = std::find_if(T2->fields.begin(), T2->fields.end(),
+			[field](Field search) -> bool {return search.name == field;});
+		T1->fields.push_back(*it);
+		T2->fields.erase(it);
+	}
+	std::string sql_query = T1->create();
+	sql_query += toUpper(std::string("\ninsert into "), upper) + T1->name + std::string(" (");
+	for(std::string field : fields) {
+		sql_query += field + std::string(", ");
+	}
+	sql_query.pop_back();
+	sql_query.pop_back();
+	sql_query += toUpper(std::string(") select "), upper);
+	for(std::string field : fields) {
+		sql_query += field + std::string(", ");
+	}
+	sql_query.pop_back();
+	sql_query.pop_back();
+	sql_query += toUpper(std::string(" from "), upper) + T2->name + std::string(";\n");
+	for(std::string field : fields) {
+		sql_query += toUpper(std::string("alter table "), upper) + T2->name;
+		sql_query += toUpper(std::string(" drop column "), upper) + field + std::string(";\n");
+	}
+	sql_query += toUpper(std::string("alter table "), upper) + T2->name;
+	sql_query += toUpper(std::string(" rename "), upper) + name + std::string(";\n");
+	T2->name.swap(name);
+	return sql_query;
 }

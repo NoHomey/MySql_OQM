@@ -58,6 +58,14 @@ int main(void) {
 	db.add_table(&tag);
 
 	std::cout << db.create();
+
 	std::cout << db.insert(6);
+
+	Table migrate("Article_16_part_1");
+	std::vector<std::string> fields;
+	fields.push_back(std::string("password"));
+	//fields.push_back(std::string("url"));
+	std::cout << db.migrate(&migrate, fields, &article, std::string("Article_16_part_2"));
+
 	return 0;
 }

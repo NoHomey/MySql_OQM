@@ -16,6 +16,8 @@ public:
 	void add_table(Table* T);
 	std::string create(void);
 	std::string insert(unsigned int count);
+	std::string use(void);
+	std::string migrate(Table* T1, std::vector<std::string> fields, Table* T2, std::string name);
 	std::string name;
 	std::vector<Table*> tables;
 private:
