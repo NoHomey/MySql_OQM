@@ -1,7 +1,13 @@
 compile = g++ -std=c++11 -Wall
 
+folder = ivo
+
 all: clean toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
+	./sql
+	mkdir -p $(folder)
+	mv *.sql $(folder)
+	make clean
 
 toUpper.o:
 	$(compile) -c toUpper.cc
