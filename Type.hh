@@ -10,6 +10,7 @@ public:
 	static std::string Date(void);
 	static std::string Boolean(void);
 	static std::string Int(void);
+	static std::string String(void);
 	static std::string Key(void);
 	static std::string UniqueKey(void);
 };

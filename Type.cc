@@ -20,6 +20,10 @@ std::string Type::Int(void) {
 	return std::string("int");
 }
 
+std::string Type::String(void) {
+	return std::string("varchar(256)");
+}
+
 std::string Type::Key(void) {
 	return Type::Int() + std::string(" not null");
 }

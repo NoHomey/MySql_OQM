@@ -13,6 +13,7 @@ public:
 	void one_to_many(Table* T1, Table* T2);
 	void many_to_one(Table* T1, Table* T2);
 	void many_to_many(Table* T1, Table* T2, Table* T3);
+	void add_table(Table* T);
 	std::string create(void);
 	std::string insert(unsigned int count);
 	std::string name;

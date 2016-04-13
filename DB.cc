@@ -34,10 +34,10 @@ void DB::add_tables(Table* T1, Table* T2) {
 		std::vector<Table*>::iterator begin = tables.begin();
 		std::vector<Table*>::iterator find_T1 = std::find(begin, end, T1);
 		std::vector<Table*>::iterator find_T2 = std::find(begin, end, T2);
-		if(find_T1 != end) {
-			tables.insert(find_T2 , T1);
+		if(find_T1 == end) {
+			tables.insert(find_T2 + 1, T1);
 		} else {
-			tables.insert(find_T1 + 1, T2);
+			tables.insert(find_T1, T2);
 		}
 	}
 }
@@ -54,6 +54,12 @@ void DB::one_to_many(Table* T1, Table* T2) {
 void DB::one_to_one(Table* T1, Table* T2) {
 	T1->key(T2->name, Type::UniqueKey());
 	add_tables(T1, T2);
+}
+
+void DB::add_table(Table* T) {
+	if(not_in(T)) {
+		tables.insert(tables.begin(), T);
+	}
 }
 
 std::string DB::create(void) {

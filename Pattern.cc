@@ -19,3 +19,7 @@ std::string Pattern::Boolean(unsigned int i) {
 std::string Pattern::Int(unsigned int i) {
 	return std::to_string(i);
 }
+
+std::string Pattern::String(unsigned int i) {
+	return std::string("\"Bla bla bla ") + std::to_string(i) + std::string("\"");;
+}
