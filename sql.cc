@@ -14,17 +14,17 @@ bool DB::upper = false;
 int main(void) {
 	DB db("exam");
 
-	Table article("Article_16");
+	Table article("Article_15");
 	article.field("price", currency_(), price_);
 	article.field("url", string_(), url_);
-	article.field("password", string_(), password_);
+	article.field("created_on", date_(), created_on_);
 
 	Table category("Category");
 	category.field("name", varchar_(), name_);
-	category.field("date_created_on", date_(), date_created_on_);
+	category.field("created_by", date_(), created_by_);
 
 	Table user("User");
-	user.field("description", long_text_(), description_);
+	user.field("income", float_(), income_);
 	user.field("gender", varchar_6_(), gender_, false);
 	user.field("name", varchar_(), name_, false);
 
@@ -32,10 +32,10 @@ int main(void) {
 	tag.field("hash", varchar_16_(), hash_);
 	tag.field("name", varchar_(), name_);
 
-	Table article_user;
-	db.many_to_many(&article, &user, &article_user);
-	db.many_to_one(&article, &tag);
-	db.one_to_one(&tag, &category);
+	db.one_to_many(&category, &user);
+	db.many_to_one(&user, &tag);
+	Table link;
+	db.many_to_many(&article, &tag, &link);
 
 	db.add_if_missing(&article);
 	db.add_if_missing(&category);
@@ -44,16 +44,18 @@ int main(void) {
 
 	std::ofstream creates("creates.sql", std::ios::out);
 	creates << db.create();
+	std::cout << "creates" << std::endl;
 
 	std::ofstream inserts("inserts.sql", std::ios::out);
-	inserts << db.use() << db.insert(6);
+	inserts << db.use() << db.insert(7);
+	std::cout << "inserts" << std::endl;
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
-	Table migrate("Article_16_part_1");
+	Table migrate("User_part1");
 	std::vector<std::string> fields;
-	fields.push_back(std::string("password"));
-	//fields.push_back(std::string("url"));
-	migrates << db.use() << db.migrate(&migrate, fields, &article, std::string("Article_16_part_2"));
+	fields.push_back(std::string("income"));
+	migrates << db.use() << db.migrate(&migrate, fields, &user, std::string("User_part2"));
+	std::cout << "migrates" << std::endl;
 
 	return 0;
 }
