@@ -4,12 +4,12 @@
 #include <string>
 
 struct Pattern {
-	static std::string Float(int i);
-	static std::string Double(int i);
-	static std::string Date(int i);
-	static std::string Boolean(int i);
-	static std::string Int(int i);
-	static std::string Connection_ID(int i);
+	static std::string Float(unsigned int i);
+	static std::string Double(unsigned int i);
+	static std::string Date(unsigned int i);
+	static std::string Boolean(unsigned int i);
+	static std::string Int(unsigned int i);
+	static std::string Connection_ID(unsigned int i);
 	static unsigned int id;
 };
 

@@ -6,7 +6,7 @@
 struct Field {
   std::string name;
   std::string sql;
-  std::string (*pattern) (int);
+  std::string (*pattern) (unsigned int);
 };
 
 #endif
