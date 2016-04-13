@@ -1,7 +1,7 @@
 compile = g++ -std=c++11 -Wall
 
-all: clean toUpper.o Table.o DB.o Pattern.o Type.o
-	$(compile) -o sql sql.cc toUpper.o Table.o DB.o Pattern.o Type.o
+all: clean toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
+	$(compile) -o sql sql.cc toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
 
 toUpper.o:
 	$(compile) -c toUpper.cc
@@ -17,6 +17,9 @@ Pattern.o:
 
 Type.o:
 	$(compile) -c Type.cc
+
+hardcoded.o:
+	$(compile) -c hardcoded.cc
 
 clean:
 	rm -f *.o sql

@@ -5,47 +5,31 @@
 #include "Pattern.hh"
 #include "Type.hh"
 
-bool Table::upper = true;
-bool DB::upper = true;
+#include "hardcoded.hh"
 
-std::string url(unsigned int i) {
-	return std::string("\"https://imgur.com/asdshfh/") + std::to_string(i) + std::string("\"");
-}
-
-std::string gender(unsigned int i) {
-	if(i % 2 == 0) {
-		return std::string("\"male\"");
-	}
-	return std::string("\"female\"");
-}
-
-std::string name(unsigned int i) {
-	if(i % 2 == 0) {
-		return std::string("\"Taylor Swift\"");
-	}
-	return std::string("\"Mike Tyson\"");
-}
+bool Table::upper = false;
+bool DB::upper = false;
 
 int main(void) {
 	DB db("exam");
 
 	Table article("Article_16");
-	article.field("price", Type::Float(), Pattern::Float);
-	article.field("url", Type::String(), url);
-	article.field("password", Type::String(), Pattern::String);
+	article.field("price", currency_(), price_);
+	article.field("url", string_(), url_);
+	article.field("password", string_(), password_);
 
 	Table category("Category");
-	category.field("name", Type::String(), Pattern::String);
-	category.field("date_created_on", Type::Date(), Pattern::Date);
+	category.field("name", varchar_(), name_);
+	category.field("date_created_on", date_(), date_created_on_);
 
 	Table user("User");
-	user.field("description", std::string("longtext"), Pattern::String);
-	user.field("gender", std::string("varchar(6)"), gender, false);
-	user.field("name", Type::String(), name, false);
+	user.field("description", long_text_(), description_);
+	user.field("gender", varchar_6_(), gender_, false);
+	user.field("name", varchar_(), name_, false);
 
 	Table tag("Tag");
-	tag.field("hash", std::string("varchar(16)"), Pattern::String);
-	tag.field("name", Type::String(), name, false);
+	tag.field("hash", varchar_16_(), hash_);
+	tag.field("name", varchar_(), name_);
 
 	Table article_user;
 	db.many_to_many(&article, &user, &article_user);
