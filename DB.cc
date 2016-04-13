@@ -3,7 +3,6 @@
 #include "toUpper.hh"
 #include "Pattern.hh"
 #include "Type.hh"
-#include <iostream>
 
 DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()) {}
 
@@ -15,10 +14,8 @@ bool DB::not_in(Table* T) {
 void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
 	std::string name = T1->name + std::string("_") + T2->name;
 	T3->name.swap(name);
-	name = T1->name + std::string("_id");
-	T3->field(name.c_str(), Type::Int(), Pattern::Connection_ID);
-	name = T2->name + std::string("_id");
-	T3->field(name.c_str(), Type::Int(), Pattern::Connection_ID);
+	T3->key(T2->name, Type::Key());
+	T3->key(T1->name, Type::Key());
 	if(not_in(T1)) {
 		tables.push_back(T1);
 	}
@@ -26,10 +23,9 @@ void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
 		tables.push_back(T2);
 	}
 	tables.push_back(T3);
-	T1->connection(T2->name, ConnectionType::many_to_many);
 }
 
-void DB::add_tables(Table* T1, Table* T2, ConnectionType Type) {
+void DB::add_tables(Table* T1, Table* T2) {
 	if(tables.empty()) {
 		tables.push_back(T2);
 		tables.push_back(T1);
@@ -44,13 +40,11 @@ void DB::add_tables(Table* T1, Table* T2, ConnectionType Type) {
 			tables.insert(find_T1 + 1, T2);
 		}
 	}
-	std::string name = T2->name + std::string("_id");
-	T2->field(name.c_str(), Type::Int(), Pattern::Connection_ID);
-	T1->connection(T2->name, Type);
 }
 
 void DB::many_to_one(Table* T1, Table* T2) {
-	add_tables(T1, T2, ConnectionType::many_to_one);
+	T1->key(T2->name, Type::Key());
+	add_tables(T1, T2);
 }
 
 void DB::one_to_many(Table* T1, Table* T2) {
@@ -58,7 +52,8 @@ void DB::one_to_many(Table* T1, Table* T2) {
 }
 
 void DB::one_to_one(Table* T1, Table* T2) {
-	add_tables(T1, T2, ConnectionType::one_to_one);
+	T1->key(T2->name, Type::UniqueKey());
+	add_tables(T1, T2);
 }
 
 std::string DB::create(void) {
@@ -68,6 +63,14 @@ std::string DB::create(void) {
   sql_query += name + std::string(";\n");
   for(Table* table: tables) {
 	  sql_query += table->create();
+  }
+  return sql_query;
+}
+
+std::string DB::insert(unsigned int count) {
+  std::string sql_query("");
+  for(Table* table: tables) {
+	  sql_query += table->insert(count);
   }
   return sql_query;
 }

@@ -4,18 +4,18 @@
 #include <string>
 #include <vector>
 #include "Field.hh"
-#include "Connection.hh"
 
-struct Table {
+class Table {
+public:
 	static bool upper;
 	Table(const char* Name = "");
-	void field(const char* Name, std::string Sql, std::string (*Pattern) (unsigned int));
-	void connection(std::string Table, ConnectionType Type);
-	std::string connection(void);
+	void field(const char* name, std::string sql, std::string (*pattern) (unsigned int));
+	void key(std::string table, std::string sql);
 	std::string create(void);
+	std::string insert(unsigned int count);
 	std::string name;
 	std::vector<Field> fields;
-	std::vector<Connection> connections;
+	std::vector<std::string> keys;
 };
 
 #endif

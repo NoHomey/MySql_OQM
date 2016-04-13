@@ -1,11 +1,22 @@
+#include <map>
+#include <random>
+#include <algorithm>
 #include "Table.hh"
 #include "toUpper.hh"
 #include "Pattern.hh"
 
-Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), connections(std::vector<Connection>()) {}
+#include <iostream>
 
-void Table::field(const char* Name, std::string Sql, std::string (*Pattern) (unsigned int)) {
-  fields.push_back({.name =  std::string(Name), .sql = Sql, .pattern = Pattern});
+Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), keys(std::vector<std::string>()) {}
+
+void Table::field(const char* name, std::string sql, std::string (*pattern) (unsigned int)) {
+  fields.push_back({.name =  std::string(name), .sql = sql, .pattern = pattern});
+}
+
+void Table::key(std::string table, std::string sql) {
+	std::string name = table + std::string("_id");
+	field(name.c_str(), sql, Pattern::Int);
+	keys.push_back(table);
 }
 
 std::string Table::create(void) {
@@ -15,43 +26,49 @@ std::string Table::create(void) {
   for(Field field: fields) {
 	sql_query += std::string("\n\t")  + field.name + std::string(" ") + toUpper(field.sql, upper) + std::string(",");
   }
+  for(std::string key: keys) {
+	  sql_query += std::string("\n\t") + toUpper(std::string("foreign key ("), upper) + key + std::string("_id");
+	  sql_query += toUpper(std::string(") references "), upper) + key + std::string(" (id),");
+  }
+  sql_query.pop_back();
   sql_query += std::string("\n);\n");
   return sql_query;
 }
 
-void Table::connection(std::string Table, ConnectionType Type) {
-	connections.push_back({.table = std::string(Table), .type = Type});
-}
-
-std::string Table::connection(void) {
-	std::string sql_query("");
-	for(Connection connection: connections) {
-		if(connection.type == ConnectionType::many_to_many) {
-			sql_query += toUpper(std::string("create table "), upper);
-			sql_query += name + std::string("_") + connection.table;
-			sql_query += std::string(" (\n\tid ");
-			sql_query += toUpper(std::string("int not null primary key auto_increment,\n\t"), upper);
-			sql_query += name + std::string("_id ") + toUpper(std::string("int,\n\t"), upper);
-			sql_query += connection.table + std::string("_id ") + toUpper(std::string("int,\n\t"), upper);
-			sql_query += toUpper(std::string("foreign key ("), upper);
-			sql_query += name + std::string("_id ");
-			sql_query += toUpper(std::string(") references "), upper);
-			sql_query += name + std::string(" (id),\n\t");
-			sql_query += toUpper(std::string("foreign key ("), upper);
-			sql_query += connection.table + std::string("_id ");
-			sql_query += toUpper(std::string(") references "), upper);
-			sql_query += connection.table + std::string(" (id),\n);\n");
-		} else {
-			sql_query += toUpper(std::string("\nalter table "), upper);
-			sql_query += name + toUpper(std::string(" add "), upper);
-			sql_query += connection.table + toUpper(std::string("_id int not null"), upper);
-			bool is_one_to_one = connection.type == ConnectionType::one_to_one;
-			sql_query += toUpper(std::string(is_one_to_one ? " unique" : ""), upper);
-			sql_query += toUpper(std::string(";\nalter table "), upper);
-			sql_query += name + toUpper(std::string(" add foreign key ("), upper) + std::string("_id) ");
-			sql_query += connection.table + toUpper(std::string("references "), upper);
-			sql_query += connection.table + std::string(" (id);\n");
-		}
+std::string Table::insert(unsigned int count) {
+	std::map<std::string, std::vector<unsigned int>> ids;
+	std::vector<unsigned int> posible(1, count + 1);
+	std::random_device rnd;
+	std::mt19937 gen(rnd());
+	for(std::string key: keys) {
+		std::shuffle(posible.begin(), posible.end(), gen);
+		ids[key + std::string("_id")] = posible;
+	}
+	std::map<std::string, std::vector<unsigned int>>::iterator end = ids.end();
+	std::string sql_query = toUpper(std::string("\ninsert into "), upper);
+	sql_query += name + std::string(" (");
+	for(Field field: fields) {
+  		sql_query += field.name + std::string(", ");
     }
+	sql_query.pop_back();
+	sql_query.pop_back();
+	sql_query += toUpper(std::string(") values"), upper);
+	for(unsigned int k = 1; k <= count; ++k) {
+		sql_query += std::string("\n\t(");
+		for(Field field: fields) {
+			if(ids.find(field.name) != end) {
+				sql_query += field.pattern(ids[field.name][k - 1]);
+				std::cout << std::endl << field.name << ' ' << k << ' ' << ids[field.name][k - 1] << std::endl;
+			} else {
+				sql_query += field.pattern(k);
+			}
+			sql_query += std::string(", ");
+	    }
+		sql_query.pop_back();
+		sql_query.pop_back();
+		sql_query += std::string("),");
+	}
+	sql_query.pop_back();
+	sql_query += std::string(";\n");
 	return sql_query;
 }

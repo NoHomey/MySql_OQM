@@ -19,3 +19,11 @@ std::string Type::Boolean(void) {
 std::string Type::Int(void) {
 	return std::string("int");
 }
+
+std::string Type::Key(void) {
+	return Type::Int() + std::string(" not null");
+}
+
+std::string Type::UniqueKey(void) {
+	return Type::Key() + std::string(" unique");
+}

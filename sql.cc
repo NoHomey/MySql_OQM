@@ -4,7 +4,6 @@
 #include "Pattern.hh"
 #include "Type.hh"
 
-unsigned int Pattern::id = 0;
 bool Table::upper = true;
 bool DB::upper = true;
 
@@ -20,9 +19,9 @@ int main(void) {
 	user.field("income", Type::Float(), Pattern::Float);
 	Table article_user;
 	db.many_to_many(&article, &user, &article_user);
-
-	std::cout << db.create();
-	std::cout << db.tables.size() << std::endl;
-	//std::cout << std::endl << article.fields[0].pattern(1) << std::endl;
+	db.create();
+	db.insert(6);
+	//std::cout << db.create();
+	//std::cout << db.insert(6);
 	return 0;
 }

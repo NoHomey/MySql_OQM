@@ -19,14 +19,3 @@ std::string Pattern::Boolean(unsigned int i) {
 std::string Pattern::Int(unsigned int i) {
 	return std::to_string(i);
 }
-
-std::string Pattern::Connection_ID(unsigned int i) {
-	unsigned int k = 0;
-	for(k = 1; k < i - 1; ++i) {
-		if(id % k == 0) {
-			break;
-		}
-	}
-	id++;
-	return Int(i - k);
-}
