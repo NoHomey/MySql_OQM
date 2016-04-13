@@ -15,25 +15,25 @@ int main(void) {
 	DB db("exam");
 
 	Table article("Article_15");
-	article.field("price", currency_(), price_);
+	article.field("password", string_(), password_);
 	article.field("url", string_(), url_);
 	article.field("created_on", date_(), created_on_);
 
 	Table category("Category");
-	category.field("name", varchar_(), name_);
-	category.field("created_by", date_(), created_by_);
+	category.field("description", long_text_(), description_);
+	category.field("priority", double_(), priority_double_);
 
 	Table user("User");
-	user.field("income", float_(), income_);
-	user.field("gender", varchar_6_(), gender_, false);
-	user.field("name", varchar_(), name_, false);
+	user.field("password", varchar_(), password_);
+	user.field("twitter", varchar_6_(), twitter_);
+	user.field("name", varchar_(), name_);
 
 	Table tag("Tag");
-	tag.field("hash", varchar_16_(), hash_);
-	tag.field("name", varchar_(), name_);
+	tag.field("second_priority", float_(), second_priority_);
+	tag.field("priority", int_(), priority_int_);
 
-	db.one_to_many(&category, &user);
-	db.many_to_one(&user, &tag);
+	db.many_to_one(&user, &category);
+	db.one_to_many(&category, &article);
 	Table link;
 	db.many_to_many(&article, &tag, &link);
 
@@ -44,18 +44,15 @@ int main(void) {
 
 	std::ofstream creates("creates.sql", std::ios::out);
 	creates << db.create();
-	std::cout << "creates" << std::endl;
 
 	std::ofstream inserts("inserts.sql", std::ios::out);
 	inserts << db.use() << db.insert(7);
-	std::cout << "inserts" << std::endl;
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
-	Table migrate("User_part1");
+	Table migrate("Category_part1");
 	std::vector<std::string> fields;
-	fields.push_back(std::string("income"));
-	migrates << db.use() << db.migrate(&migrate, fields, &user, std::string("User_part2"));
-	std::cout << "migrates" << std::endl;
+	fields.push_back(std::string("description"));
+	migrates << db.use() << db.migrate(&migrate, fields, &category, std::string("Category_part2"));
 
 	return 0;
 }
