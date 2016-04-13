@@ -1,16 +1,13 @@
-#include <map>
 #include <random>
 #include <algorithm>
 #include "Table.hh"
 #include "toUpper.hh"
 #include "Pattern.hh"
 
-#include <iostream>
-
 Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), keys(std::vector<std::string>()) {}
 
-void Table::field(const char* name, std::string sql, std::string (*pattern) (unsigned int)) {
-  fields.push_back({.name =  std::string(name), .sql = sql, .pattern = pattern});
+void Table::field(const char* name, std::string sql, std::string (*pattern) (unsigned int), bool random) {
+  fields.push_back({.name =  std::string(name), .sql = sql, .pattern = pattern, .random = random});
 }
 
 void Table::key(std::string table, std::string sql) {
@@ -36,15 +33,18 @@ std::string Table::create(void) {
 }
 
 std::string Table::insert(unsigned int count) {
-	std::map<std::string, std::vector<unsigned int>> ids;
-	std::vector<unsigned int> posible(1, count + 1);
+	const unsigned int len = fields.size();
+	std::vector<unsigned int> map[len];
+	std::vector<unsigned int> posible;
+	for(unsigned int k = 0; k < count; ++k) {
+		posible.push_back(k + 1);
+	}
 	std::random_device rnd;
 	std::mt19937 gen(rnd());
-	for(std::string key: keys) {
+	for(unsigned int i = 0; i < len; ++ i) {
 		std::shuffle(posible.begin(), posible.end(), gen);
-		ids[key + std::string("_id")] = posible;
+		map[i] = posible;
 	}
-	std::map<std::string, std::vector<unsigned int>>::iterator end = ids.end();
 	std::string sql_query = toUpper(std::string("\ninsert into "), upper);
 	sql_query += name + std::string(" (");
 	for(Field field: fields) {
@@ -53,16 +53,10 @@ std::string Table::insert(unsigned int count) {
 	sql_query.pop_back();
 	sql_query.pop_back();
 	sql_query += toUpper(std::string(") values"), upper);
-	for(unsigned int k = 1; k <= count; ++k) {
+	for(unsigned int k = 0; k < count; ++k) {
 		sql_query += std::string("\n\t(");
-		for(Field field: fields) {
-			if(ids.find(field.name) != end) {
-				sql_query += field.pattern(ids[field.name][k - 1]);
-				std::cout << std::endl << field.name << ' ' << k << ' ' << ids[field.name][k - 1] << std::endl;
-			} else {
-				sql_query += field.pattern(k);
-			}
-			sql_query += std::string(", ");
+		for(unsigned int i  = 0; i < len; ++i) {
+			sql_query += fields[i].pattern(fields[i].random ? map[i][k] : k + 1) + std::string(", ");
 	    }
 		sql_query.pop_back();
 		sql_query.pop_back();

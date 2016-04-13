@@ -19,9 +19,8 @@ int main(void) {
 	user.field("income", Type::Float(), Pattern::Float);
 	Table article_user;
 	db.many_to_many(&article, &user, &article_user);
-	db.create();
-	db.insert(6);
-	//std::cout << db.create();
-	//std::cout << db.insert(6);
+	
+	std::cout << db.create();
+	std::cout << db.insert(6);
 	return 0;
 }

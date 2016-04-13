@@ -7,6 +7,7 @@ struct Field {
   std::string name;
   std::string sql;
   std::string (*pattern) (unsigned int);
+  bool random;
 };
 
 #endif

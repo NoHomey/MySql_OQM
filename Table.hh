@@ -9,7 +9,7 @@ class Table {
 public:
 	static bool upper;
 	Table(const char* Name = "");
-	void field(const char* name, std::string sql, std::string (*pattern) (unsigned int));
+	void field(const char* name, std::string sql, std::string (*pattern) (unsigned int), bool random = true);
 	void key(std::string table, std::string sql);
 	std::string create(void);
 	std::string insert(unsigned int count);
