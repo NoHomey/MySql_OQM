@@ -1,17 +1,22 @@
-all: clean toUpper.o Table.o DB.o Pattern.o
-	g++ -std=c++11 -o sql sql.cc toUpper.o Table.o DB.o Pattern.o
+compile = g++ -std=c++11 -Wall
+
+all: clean toUpper.o Table.o DB.o Pattern.o Type.o
+	$(compile) -o sql sql.cc toUpper.o Table.o DB.o Pattern.o Type.o
 
 toUpper.o:
-	g++ -std=c++11 -c toUpper.cc
+	$(compile) -c toUpper.cc
 
 Table.o:
-	g++ -std=c++11 -c Table.cc
+	$(compile) -c Table.cc
 
 DB.o:
-	g++ -std=c++11 -c DB.cc
+	$(compile) -c DB.cc
 
 Pattern.o:
-	g++ -std=c++11 -c Pattern.cc
+	$(compile) -c Pattern.cc
+
+Type.o:
+	$(compile) -c Type.cc
 
 clean:
 	rm -f *.o sql

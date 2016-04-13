@@ -4,8 +4,8 @@
 
 Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), connections(std::vector<Connection>()) {}
 
-void Table::field(const char* Name, const char* Sql, std::string (*Pattern) (unsigned int)) {
-  fields.push_back({.name = std::string(Name), .sql = std::string(Sql), .pattern = Pattern});
+void Table::field(const char* Name, std::string Sql, std::string (*Pattern) (unsigned int)) {
+  fields.push_back({.name =  std::string(Name), .sql = Sql, .pattern = Pattern});
 }
 
 std::string Table::create(void) {
@@ -13,9 +13,7 @@ std::string Table::create(void) {
   sql_query += name + std::string(" (\n\tid ");
   sql_query += toUpper(std::string("int not null primary key auto_increment,"), upper);
   for(Field field: fields) {
-	if(field.sql[0] != '!') {
-		sql_query += std::string("\n\t")  + field.name + std::string(" ") + toUpper(field.sql, upper) + std::string(",");
-	}
+	sql_query += std::string("\n\t")  + field.name + std::string(" ") + toUpper(field.sql, upper) + std::string(",");
   }
   sql_query += std::string("\n);\n");
   return sql_query;
