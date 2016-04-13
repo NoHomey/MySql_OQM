@@ -22,4 +22,4 @@ hardcoded.o:
 	$(compile) -c hardcoded.cc
 
 clean:
-	rm -f *.o sql
+	rm -f *.o sql *.sql

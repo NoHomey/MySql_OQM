@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "DB.hh"
 #include "Table.hh"
@@ -36,20 +37,23 @@ int main(void) {
 	db.many_to_one(&article, &tag);
 	db.one_to_one(&tag, &category);
 
-	db.add_table(&article);
-	db.add_table(&category);
-	db.add_table(&user);
-	db.add_table(&tag);
+	db.add_if_missing(&article);
+	db.add_if_missing(&category);
+	db.add_if_missing(&user);
+	db.add_if_missing(&tag);
 
-	std::cout << db.create();
+	std::ofstream creates("creates.sql", std::ios::out);
+	creates << db.create();
 
-	std::cout << db.insert(6);
+	std::ofstream inserts("inserts.sql", std::ios::out);
+	inserts << db.use() << db.insert(6);
 
+	std::ofstream migrates("migrates.sql", std::ios::out);
 	Table migrate("Article_16_part_1");
 	std::vector<std::string> fields;
 	fields.push_back(std::string("password"));
 	//fields.push_back(std::string("url"));
-	std::cout << db.migrate(&migrate, fields, &article, std::string("Article_16_part_2"));
+	migrates << db.use() << db.migrate(&migrate, fields, &article, std::string("Article_16_part_2"));
 
 	return 0;
 }

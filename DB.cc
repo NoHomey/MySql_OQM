@@ -56,7 +56,7 @@ void DB::one_to_one(Table* T1, Table* T2) {
 	add_tables(T1, T2);
 }
 
-void DB::add_table(Table* T) {
+void DB::add_if_missing(Table* T) {
 	if(not_in(T)) {
 		tables.insert(tables.begin(), T);
 	}

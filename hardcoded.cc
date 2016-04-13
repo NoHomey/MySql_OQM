@@ -7,7 +7,7 @@ std::string date_(void) {
 	return std::string("date");
 }
 std::string currency_(void) {
-	return std::string("float(5,2)");
+	return std::string("float(5, 2)");
 }
 std::string string_(void) {
 	return varchar_();
