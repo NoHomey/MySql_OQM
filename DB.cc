@@ -4,15 +4,26 @@
 #include "Pattern.hh"
 #include "Type.hh"
 
-DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()) {}
+DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()), connections(std::vector<Connection>()) {}
+
+std::string DB::merge_name(Table* T1, Table* T2) {
+	if(T1->name[0] < T2->name[0]) {
+		return T1->name + std::string("_") + T2->name;
+	}
+	return T2->name + std::string("_") + T1->name;;
+}
 
 bool DB::not_in(Table* T) {
 	std::vector<Table*>::iterator end = tables.end();
 	return std::find(tables.begin(), end, T) == end;
 }
 
+void DB::connection(ConnectionType type, Table* T1, Table* T2) {
+	connections.push_back({.type = ConnectionType::many_to_many, .from = T1, .to = T2});
+}
+
 void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
-	std::string name = T1->name + std::string("_") + T2->name;
+	std::string name = merge_name(T1, T2);
 	T3->name.swap(name);
 	T3->key(T2->name, Type::Key());
 	T3->key(T1->name, Type::Key());
@@ -23,6 +34,7 @@ void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
 		tables.push_back(T2);
 	}
 	tables.push_back(T3);
+	connection(ConnectionType::many_to_many, T1, T2);
 }
 
 void DB::add_tables(Table* T1, Table* T2) {
@@ -45,6 +57,7 @@ void DB::add_tables(Table* T1, Table* T2) {
 void DB::many_to_one(Table* T1, Table* T2) {
 	T1->key(T2->name, Type::Key());
 	add_tables(T1, T2);
+	connection(ConnectionType::many_to_one, T1, T2);
 }
 
 void DB::one_to_many(Table* T1, Table* T2) {
@@ -54,6 +67,7 @@ void DB::one_to_many(Table* T1, Table* T2) {
 void DB::one_to_one(Table* T1, Table* T2) {
 	T1->key(T2->name, Type::UniqueKey());
 	add_tables(T1, T2);
+	connection(ConnectionType::one_to_one, T1, T2);
 }
 
 void DB::add_if_missing(Table* T) {
@@ -65,8 +79,7 @@ void DB::add_if_missing(Table* T) {
 std::string DB::create(void) {
   std::string sql_query = toUpper(std::string("drop database if exists "), upper);
   sql_query += name + toUpper(std::string(";\ncreate database "), upper);
-  sql_query += name + toUpper(std::string(";\nuse "), upper);
-  sql_query += name + std::string(";\n");
+  sql_query += name + std::string(";\n") + use();
   for(Table* table: tables) {
 	  sql_query += table->create();
   }
@@ -113,5 +126,13 @@ std::string DB::migrate(Table* T1, std::vector<std::string> fields, Table* T2, s
 	sql_query += toUpper(std::string("alter table "), upper) + T2->name;
 	sql_query += toUpper(std::string(" rename "), upper) + name + std::string(";\n");
 	T2->name.swap(name);
+	return sql_query;
+}
+
+std::string DB::select(std::string wich, std::string given, unsigned int id) {
+
+	std::string sql_query = toUpper(std::string("select "), upper) + wich + std::string(".id ");
+	sql_query += toUpper(std::string("from "), upper) + wich;
+
 	return sql_query;
 }

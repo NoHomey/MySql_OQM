@@ -4,8 +4,8 @@ folder = Ivo_Stratev_B_16
 
 db = exam
 
-all: clean toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
-	$(compile) -o sql sql.cc toUpper.o Table.o DB.o Pattern.o Type.o hardcoded.o
+all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
+	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	./sql
 	mkdir -p $(folder)
 	mv *.sql $(folder)
@@ -16,6 +16,9 @@ toUpper.o:
 
 Table.o:
 	$(compile) -c Table.cc
+
+Connection.o:
+	$(compile) -c Connection.cc
 
 DB.o:
 	$(compile) -c DB.cc

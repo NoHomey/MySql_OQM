@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Table.hh"
+#include "Connection.hh"
 
 class DB {
 public:
@@ -18,11 +19,16 @@ public:
 	std::string insert(unsigned int count);
 	std::string use(void);
 	std::string migrate(Table* T1, std::vector<std::string> fields, Table* T2, std::string name);
+	std::string select(std::string wich, std::string given, unsigned int id);
 	std::string name;
 	std::vector<Table*> tables;
+	std::vector<Connection> connections;
 private:
+	std::string merge_name(Table* T1, Table* T2);
 	bool not_in(Table* T);
+	void connection(ConnectionType type, Table* T1, Table* T2);
 	void add_tables(Table* T1, Table* T2);
+	unsigned int inserted;
 };
 
 #endif
