@@ -43,9 +43,13 @@ std::string varchar_16_(void) {
 std::string name_(unsigned int i) {
 	std::string n;
 	unsigned int k;
-	for(k = 1; k < 11; k++) {
-		if(i % k == 0) {
-			break;
+	if(i < 11) {
+		k = i;
+	} else {
+		for(k = 2; k < 11; k++) {
+			if(i % k == 0) {
+				break;
+			}
 		}
 	}
 	switch(k) {

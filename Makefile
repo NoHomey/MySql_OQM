@@ -1,6 +1,6 @@
 compile = g++ -std=c++11 -Wall
 
-folder = Borislav_Stratev_B_2
+folder = Ivo_Stratev_B_16
 
 db = exam
 
