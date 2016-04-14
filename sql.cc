@@ -14,28 +14,28 @@ bool DB::upper = false;
 int main(void) {
 	DB db("exam");
 
-	Table article("Article_15");
-	article.field("password", string_(), password_);
-	article.field("url", string_(), url_);
+	Table article("Article_1");
+	article.field("name", varchar_(), name_);
 	article.field("created_on", date_(), created_on_);
+	article.field("content", long_string_(), content_);
 
 	Table category("Category");
-	category.field("description", long_text_(), description_);
-	category.field("priority", double_(), priority_double_);
+	category.field("name", varchar_(), name_);
+	category.field("created_by", string_(), created_by_);
 
 	Table user("User");
-	user.field("password", varchar_(), password_);
 	user.field("twitter", varchar_6_(), twitter_);
 	user.field("name", varchar_(), name_);
+	user.field("dexcription", long_text_(), description_);
 
 	Table tag("Tag");
-	tag.field("second_priority", float_(), second_priority_);
 	tag.field("priority", int_(), priority_int_);
+	tag.field("hash", varchar_16_(), hash_);
 
-	db.many_to_one(&user, &category);
-	db.one_to_many(&category, &article);
-	Table link;
-	db.many_to_many(&article, &tag, &link);
+	db.one_to_one(&tag, &user);
+	db.one_to_many(&user, &category);
+	//Table link;
+	db.many_to_one(&article, &category);
 
 	db.add_if_missing(&article);
 	db.add_if_missing(&category);
@@ -48,11 +48,18 @@ int main(void) {
 	std::ofstream inserts("inserts.sql", std::ios::out);
 	inserts << db.use() << db.insert(7);
 
+	std::ofstream selects1("selects1.sql", std::ios::out);
+	selects1 << db.use();
+
 	std::ofstream migrates("migrates.sql", std::ios::out);
-	Table migrate("Category_part1");
+	Table migrate("User_part1");
 	std::vector<std::string> fields;
-	fields.push_back(std::string("description"));
-	migrates << db.use() << db.migrate(&migrate, fields, &category, std::string("Category_part2"));
+	fields.push_back(std::string("name"));
+	migrates << db.use();
+	migrates << db.migrate(&migrate, fields, &user, std::string("User_part2"));
+
+	std::ofstream selects2("selects2.sql", std::ios::out);
+	selects2 << db.use();
 
 	return 0;
 }
