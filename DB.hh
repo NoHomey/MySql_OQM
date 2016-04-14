@@ -19,7 +19,7 @@ public:
 	std::string insert(unsigned int count);
 	std::string use(void);
 	std::string migrate(Table* T1, std::vector<std::string> fields, Table* T2, std::string name);
-	std::string select(std::string wich, std::string given, unsigned int id);
+	std::string select(Table* wich, Table* given, unsigned int id, std::string join_type = std::string("inner join"));
 	std::string name;
 	std::vector<Table*> tables;
 	std::vector<Connection> connections;

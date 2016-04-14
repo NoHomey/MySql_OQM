@@ -1,10 +1,11 @@
 #include <algorithm>
+#include <stdexcept>
 #include "DB.hh"
 #include "toUpper.hh"
 #include "Pattern.hh"
 #include "Type.hh"
 
-DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()), connections(std::vector<Connection>()) {}
+DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()), connections(std::vector<Connection>()), inserted(0) {}
 
 std::string DB::merge_name(Table* T1, Table* T2) {
 	if(T1->name[0] < T2->name[0]) {
@@ -91,6 +92,7 @@ std::string DB::insert(unsigned int count) {
   for(Table* table: tables) {
 	  sql_query += table->insert(count);
   }
+  inserted = count;
   return sql_query;
 }
 
@@ -129,10 +131,16 @@ std::string DB::migrate(Table* T1, std::vector<std::string> fields, Table* T2, s
 	return sql_query;
 }
 
-std::string DB::select(std::string wich, std::string given, unsigned int id) {
+std::string DB::select(Table* wich, Table* given, unsigned int id, std::string join_type) {
+	if((id > inserted) && (id > 0)) {
+		throw std::invalid_argument("id must be from 1 to number of inserts (including)");
+	}
 
-	std::string sql_query = toUpper(std::string("select "), upper) + wich + std::string(".id ");
-	sql_query += toUpper(std::string("from "), upper) + wich;
 
+	std::string sql_query = toUpper(std::string("select "), upper) + wich->name + std::string(".id ");
+	sql_query += toUpper(std::string("from "), upper) + wich->name + std::string("\n");
+
+	sql_query += toUpper(std::string("where "), upper) + given->name;
+	sql_query += std::string(".id = ") + std::to_string(id) + std::string(";\n");
 	return sql_query;
 }
