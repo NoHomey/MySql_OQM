@@ -11,7 +11,6 @@ enum ConnectionType {
 };
 
 struct Connection {
-	Table* operator[](std::string table);
 	Table* operator[](Table* table);
 	ConnectionType type;
 	Table* from;

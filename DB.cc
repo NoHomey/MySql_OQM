@@ -131,6 +131,16 @@ std::string DB::migrate(Table* T1, std::vector<std::string> fields, Table* T2, s
 	return sql_query;
 }
 
+std::vector<Connection> DB::get_connections(Table* table) {
+	std::vector<Connection> found;
+	for(Connection connection: connections) {
+		if((connection.from == table) || (connection.to == table)) {
+			found.push_back(connection);
+		}
+	}
+	return found;
+}
+
 std::string DB::select(Table* wich, Table* given, unsigned int id, std::string join_type) {
 	if((id > inserted) && (id > 0)) {
 		throw std::invalid_argument("id must be from 1 to number of inserts (including)");
