@@ -12,6 +12,7 @@ enum ConnectionType {
 
 struct Connection {
 	Table* operator[](Table* table);
+	bool operator==(const Connection connection);
 	ConnectionType type;
 	Table* from;
 	Table* to;

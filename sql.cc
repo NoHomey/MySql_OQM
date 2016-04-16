@@ -50,6 +50,7 @@ int main(void) {
 
 	std::ofstream selects1("selects1.sql", std::ios::out);
 	selects1 << db.use();
+	selects1 << db.select(&article, &category, 2);
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
 	Table migrate("Tag_part1");

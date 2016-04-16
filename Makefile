@@ -7,9 +7,9 @@ db = exam
 all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	./sql
-	mkdir -p $(folder)
-	mv *.sql $(folder)
-	make clean
+	#mkdir -p $(folder)
+	#mv *.sql $(folder)
+	#make clean
 
 toUpper.o:
 	$(compile) -c toUpper.cc

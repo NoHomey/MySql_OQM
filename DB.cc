@@ -5,6 +5,8 @@
 #include "Pattern.hh"
 #include "Type.hh"
 
+#include <iostream>
+
 DB::DB(const char* Name): name(Name), tables(std::vector<Table*>()), connections(std::vector<Connection>()), inserted(0) {}
 
 std::string DB::merge_name(Table* T1, Table* T2) {
@@ -145,11 +147,67 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 	if((id > inserted) && (id > 0)) {
 		throw std::invalid_argument("id must be from 1 to number of inserts (including)");
 	}
-
-
+	std::vector<Table*> search;
+	std::vector<Table*> visited;
+	std::vector<Table*>::iterator visited_end;
+	std::vector<Connection> path;
+	std::vector<Connection> found;
+	std::vector<Connection>::iterator path_end;
+	Table* checked;
+	Table* last = wich;
+	search.push_back(last);
+	std::cout << "begin" << std::endl;
+	while(last != given) {
+		std::cout << last->name << std::endl;
+		visited_end = visited.end();
+		if(std::find(visited.begin(), visited_end, last) != visited_end) {
+			continue;
+		}
+		found = get_connections(last);
+		visited.push_back(last);
+		if(!found.size()) {
+			search.pop_back();
+			if(path.back()[last] == search.back()) {
+				search.pop_back();
+			}
+			last = search.back();
+			continue;
+		}
+		for(Connection connection: found) {
+			path_end = path.end();
+			if(std::find(path.begin(), path_end, const_cast<Connection&>(connection)) != path_end) {
+				continue;
+			}
+			checked = connection[last];
+			search.push_back(checked);
+			path.push_back(connection);
+			if(checked == given) {
+				break;
+			}
+		}
+		last = path.back()[last];
+	}
+	std::cout << "end" << std::endl;
+	found.clear();
+	Connection path_connection;
+	while(path.size()) {
+		path_connection = path.back();
+		if((path_connection.from = last) || (path_connection.to == last)) {
+			found.insert(found.begin(), path_connection);
+			last = path_connection[last];
+		}
+		path.pop_back();
+	}
+	last = wich;
 	std::string sql_query = toUpper(std::string("select "), upper) + wich->name + std::string(".id ");
 	sql_query += toUpper(std::string("from "), upper) + wich->name + std::string("\n");
-
+	for(Connection connection: found) {
+		if(connection.type != ConnectionType::many_to_many) {
+			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
+			sql_query += toUpper(std::string(" on "), upper) + connection.from->name;
+			sql_query += std::string("_id = ") + connection.to->name + std::string(".id\n");
+		}
+	}
 	sql_query += toUpper(std::string("where "), upper) + given->name;
 	sql_query += std::string(".id = ") + std::to_string(id) + std::string(";\n");
 	return sql_query;
