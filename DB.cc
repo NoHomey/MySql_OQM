@@ -22,7 +22,8 @@ bool DB::not_in(Table* T) {
 }
 
 void DB::connection(ConnectionType type, Table* T1, Table* T2) {
-	connections.push_back({.type = ConnectionType::many_to_many, .from = T1, .to = T2});
+	std::cout << "type: " << type << std::endl;
+	connections.push_back({.type = type, .from = T1, .to = T2});
 }
 
 void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
@@ -156,16 +157,11 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 	Table* checked;
 	Table* last = wich;
 	search.push_back(last);
-	std::cout << "begin" << std::endl;
+	bool pushed;
 	while(last != given) {
-		std::cout << last->name << std::endl;
 		visited_end = visited.end();
-		if(std::find(visited.begin(), visited_end, last) != visited_end) {
-			continue;
-		}
 		found = get_connections(last);
-		visited.push_back(last);
-		if(!found.size()) {
+		if((!found.size()) || (std::find(visited.begin(), visited_end, last) != visited_end)) {
 			search.pop_back();
 			if(path.back()[last] == search.back()) {
 				search.pop_back();
@@ -173,41 +169,59 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 			last = search.back();
 			continue;
 		}
+		pushed = false;
+		visited.push_back(last);
 		for(Connection connection: found) {
 			path_end = path.end();
-			if(std::find(path.begin(), path_end, const_cast<Connection&>(connection)) != path_end) {
+			if(std::find(path.begin(), path_end, connection) != path_end) {
 				continue;
 			}
 			checked = connection[last];
 			search.push_back(checked);
 			path.push_back(connection);
+			pushed = true;
 			if(checked == given) {
 				break;
 			}
 		}
-		last = path.back()[last];
-	}
-	std::cout << "end" << std::endl;
-	found.clear();
-	Connection path_connection;
-	while(path.size()) {
-		path_connection = path.back();
-		if((path_connection.from = last) || (path_connection.to == last)) {
-			found.insert(found.begin(), path_connection);
-			last = path_connection[last];
+		if(pushed) {
+			last = path.back()[last];
 		}
-		path.pop_back();
 	}
-	last = wich;
+	found.clear();
+	unsigned int size = search.size();
+	for(unsigned int i = 1; i < size; ++i) {
+		for(Connection connection: connections) {
+			if((connection.from == search[i]) && (connection.to = search[i - 1])) {
+				path_end = found.end();
+				if(std::find(found.begin(), path_end, connection) == path_end) {
+					found.push_back(connection);
+				}
+			} else if((connection.to == search[i]) && (connection.from = search[i - 1])) {
+				path_end = found.end();
+				if(std::find(found.begin(), path_end, connection) == path_end) {
+					found.push_back(connection);
+				}
+			}
+		}
+	}
+	for(Connection connection: found) {
+		std::cout << std::endl << "type = " << connection.type;
+		std::cout << " from = " << connection.from->name;
+		std::cout << " to = " << connection.to->name << std::endl;
+	}
 	std::string sql_query = toUpper(std::string("select "), upper) + wich->name + std::string(".id ");
 	sql_query += toUpper(std::string("from "), upper) + wich->name + std::string("\n");
+	last = wich;
 	for(Connection connection: found) {
 		if(connection.type != ConnectionType::many_to_many) {
 			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
-			sql_query += toUpper(std::string(" on "), upper) + connection.from->name;
-			sql_query += std::string("_id = ") + connection.to->name + std::string(".id\n");
+			sql_query += toUpper(std::string(" on "), upper) + connection.from->name + std::string(".");
+			sql_query += connection.to->name + std::string("_id = ") + connection.to->name + std::string(".id\n");
 		}
+		last = connection[last];
 	}
+	std::cout << "end" << std::endl;
 	sql_query += toUpper(std::string("where "), upper) + given->name;
 	sql_query += std::string(".id = ") + std::to_string(id) + std::string(";\n");
 	return sql_query;
