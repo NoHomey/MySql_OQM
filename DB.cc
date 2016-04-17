@@ -225,15 +225,15 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 	last = wich;
 	for(Connection connection: found) {
 		if(connection.type != ConnectionType::many_to_many) {
-			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
+			sql_query += toUpper(join_type, upper) + std::string(" ") + connection[last]->name;
 			sql_query += toUpper(std::string(" on "), upper) + connection.from->name + std::string(".");
 			sql_query += connection.from->keys[connection.to] + std::string(" = ") + connection.to->name + std::string(".id\n");
 		} else {
 			checked = find_connection_table(connection);
-			sql_query += toUpper(std::string("inner join "), upper) + checked->name;
+			sql_query += toUpper(join_type, upper) + std::string(" ") + checked->name;
 			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
 			sql_query += checked->keys[last] + std::string(" = ") + last->name + std::string(".id\n");
-			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
+			sql_query += toUpper(join_type, upper) + std::string(" ") + connection[last]->name;
 			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
 			sql_query += checked->keys[connection[last]] + std::string(" = ") + connection[last]->name + std::string(".id\n");
 		}

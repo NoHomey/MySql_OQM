@@ -14,28 +14,28 @@ bool DB::upper = false;
 int main(void) {
 	DB db("exam");
 
-	Table article("Article_15");
-	article.field("name", varchar_(), name_);
-	article.field("price", currency_(), price_);
+	Table article("Article_1");
+	article.field("password", string_(), password_);
+	article.field("created_on", date_(), created_on_);
 	article.field("content", long_string_(), content_);
 
 	Table category("Category");
-	category.field("date_created_on", date_(), date_created_on_);
-	category.field("name", varchar_(), name_);
+	category.field("description", long_text_(), description_);
+	category.field("created_by", string_(), created_by_);
 
 	Table user("User");
-	user.field("password", varchar_(), password_);
+	user.field("income", float_(), income_);
 	user.field("name", varchar_(), name_);
-	user.field("age", int_(), age_);
 
 	Table tag("Tag");
-	tag.field("description", varchar_(), description_);
+	tag.field("priority", int_(), priority_int_);
 	tag.field("name", varchar_(), name_);
 
-	db.one_to_many(&category, &tag);
-	Table link;
-	db.many_to_many(&tag, &article, &link);
-	db.one_to_many(&article, &user);
+	Table category_article;
+	db.many_to_many(&category, &article, &category_article);
+	db.many_to_one(&article, &tag);
+	Table tag_user;
+	db.many_to_many(&tag, &user, &tag_user);
 
 	db.add_if_missing(&article);
 	db.add_if_missing(&category);
@@ -50,18 +50,18 @@ int main(void) {
 
 	std::ofstream selects1("selects1.sql", std::ios::out);
 	selects1 << db.use();
-	selects1 << db.select(&article, &category, 2);
+	selects1 << db.select(&tag, &category, 2);
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
-	Table migrate("Tag_part1");
+	Table migrate("Article_1_part1");
 	std::vector<std::string> fields;
-	fields.push_back(std::string("name"));
+	fields.push_back(std::string("created_on"));
 	migrates << db.use();
-	migrates << db.migrate(&migrate, fields, &tag, std::string("Tag_part2"));
+	migrates << db.migrate(&migrate, fields, &article, std::string("Article_1_part2"));
 
 	std::ofstream selects2("selects2.sql", std::ios::out);
 	selects2 << db.use();
-	selects2 << db.select(&user, &tag, 2);
+	selects2 << db.select(&user, &article, 2);
 
 	return 0;
 }
