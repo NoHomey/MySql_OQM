@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "Field.hh"
 
 class Table {
@@ -10,12 +11,12 @@ public:
 	static bool upper;
 	Table(const char* Name = "");
 	void field(const char* name, std::string sql, std::string (*pattern) (unsigned int), bool random = true);
-	void key(std::string table, std::string sql);
+	void key(Table* table, std::string sql);
 	std::string create(void);
 	std::string insert(unsigned int count);
 	std::string name;
 	std::vector<Field> fields;
-	std::vector<std::string> keys;
+	std::map<Table*, std::string> keys;
 };
 
 #endif

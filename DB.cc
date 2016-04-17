@@ -28,8 +28,8 @@ void DB::connection(ConnectionType type, Table* T1, Table* T2) {
 void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
 	std::string name = merge_name(T1, T2);
 	T3->name.swap(name);
-	T3->key(T2->name, Type::Key());
-	T3->key(T1->name, Type::Key());
+	T3->key(T2, Type::Key());
+	T3->key(T1, Type::Key());
 	if(not_in(T1)) {
 		tables.push_back(T1);
 	}
@@ -58,7 +58,7 @@ void DB::add_tables(Table* T1, Table* T2) {
 }
 
 void DB::many_to_one(Table* T1, Table* T2) {
-	T1->key(T2->name, Type::Key());
+	T1->key(T2, Type::Key());
 	add_tables(T1, T2);
 	connection(ConnectionType::many_to_one, T1, T2);
 }
@@ -68,7 +68,7 @@ void DB::one_to_many(Table* T1, Table* T2) {
 }
 
 void DB::one_to_one(Table* T1, Table* T2) {
-	T1->key(T2->name, Type::UniqueKey());
+	T1->key(T2, Type::UniqueKey());
 	add_tables(T1, T2);
 	connection(ConnectionType::one_to_one, T1, T2);
 }
@@ -141,6 +141,16 @@ std::vector<Connection> DB::get_connections(Table* table) {
 		}
 	}
 	return found;
+}
+
+Table* DB::find_connection_table(Connection connection) {
+	std::vector<Table*>::iterator it = std::find_if(tables.begin(), tables.end(),
+		[this, connection](Table* table) -> bool {
+			std::map<Table*, std::string>::iterator end = table->keys.end();
+			return ((table->keys.find(connection.from) != end) && (table->keys.find(connection.to) != end));
+		}
+	);
+	return *it;
 }
 
 std::string DB::select(Table* wich, Table* given, unsigned int id, std::string join_type) {
@@ -217,19 +227,18 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 		if(connection.type != ConnectionType::many_to_many) {
 			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
 			sql_query += toUpper(std::string(" on "), upper) + connection.from->name + std::string(".");
-			sql_query += connection.to->name + std::string("_id = ") + connection.to->name + std::string(".id\n");
+			sql_query += connection.from->keys[connection.to] + std::string(" = ") + connection.to->name + std::string(".id\n");
 		} else {
-			std::string name = merge_name(connection.from, connection.to);
-			sql_query += toUpper(std::string("inner join "), upper) + name;
-			sql_query += toUpper(std::string(" on "), upper) + name + std::string(".");
-			sql_query += last->name + std::string("_id = ") + last->name + std::string(".id\n");
-			sql_query += toUpper(std::string("inner join "), upper) + name;
-			sql_query += toUpper(std::string(" on "), upper) + name + std::string(".");
-			sql_query += connection[last]->name + std::string("_id = ") + connection[last]->name + std::string(".id\n");
+			checked = find_connection_table(connection);
+			sql_query += toUpper(std::string("inner join "), upper) + checked->name;
+			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
+			sql_query += checked->keys[last] + std::string(" = ") + last->name + std::string(".id\n");
+			sql_query += toUpper(std::string("inner join "), upper) + connection[last]->name;
+			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
+			sql_query += checked->keys[connection[last]] + std::string(" = ") + connection[last]->name + std::string(".id\n");
 		}
 		last = connection[last];
 	}
-	std::cout << "end" << std::endl;
 	sql_query += toUpper(std::string("where "), upper) + given->name;
 	sql_query += std::string(".id = ") + std::to_string(id) + std::string(";\n");
 	return sql_query;

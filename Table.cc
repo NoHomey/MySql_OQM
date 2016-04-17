@@ -4,16 +4,16 @@
 #include "toUpper.hh"
 #include "Pattern.hh"
 
-Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), keys(std::vector<std::string>()) {}
+Table::Table(const char* Name): name(Name), fields(std::vector<Field>()), keys(std::map<Table*, std::string>()) {}
 
 void Table::field(const char* name, std::string sql, std::string (*pattern) (unsigned int), bool random) {
   fields.push_back({.name =  std::string(name), .sql = sql, .pattern = pattern, .random = random});
 }
 
-void Table::key(std::string table, std::string sql) {
-	std::string name = table + std::string("_id");
+void Table::key(Table* table, std::string sql) {
+	std::string name = table->name + std::string("_id");
 	field(name.c_str(), sql, Pattern::Int);
-	keys.push_back(table);
+	keys[table] = name;
 }
 
 std::string Table::create(void) {
@@ -23,9 +23,9 @@ std::string Table::create(void) {
   for(Field field: fields) {
 	sql_query += std::string("\n\t")  + field.name + std::string(" ") + toUpper(field.sql, upper) + std::string(",");
   }
-  for(std::string key: keys) {
-	  sql_query += std::string("\n\t") + toUpper(std::string("foreign key ("), upper) + key + std::string("_id");
-	  sql_query += toUpper(std::string(") references "), upper) + key + std::string(" (id),");
+  for(auto key: keys) {
+	  sql_query += std::string("\n\t") + toUpper(std::string("foreign key ("), upper) + key.second;
+	  sql_query += toUpper(std::string(") references "), upper) + key.first->name + std::string(" (id),");
   }
   sql_query.pop_back();
   sql_query += std::string("\n);\n");

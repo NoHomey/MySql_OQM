@@ -29,6 +29,7 @@ private:
 	void connection(ConnectionType type, Table* T1, Table* T2);
 	void add_tables(Table* T1, Table* T2);
 	std::vector<Connection> get_connections(Table* table);
+	Table* find_connection_table(Connection connection);
 	unsigned int inserted;
 };
 
