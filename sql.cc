@@ -61,6 +61,7 @@ int main(void) {
 
 	std::ofstream selects2("selects2.sql", std::ios::out);
 	selects2 << db.use();
+	selects2 << db.select(&user, &tag, 2);
 
 	return 0;
 }
