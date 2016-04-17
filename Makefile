@@ -4,10 +4,23 @@ folder = Ivo_Stratev_B_16
 
 db = exam
 
+user = -u ivo
+
+sql = mysql $(user) <
+
+dump = mysqldump $(user) $(db) >
+
 all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	./sql
 	mkdir -p $(folder)
+	$(sql) creates.sql
+	$(sql) inserts.sql
+	$(dump) export1.sql
+	$(sql) selects1.sql
+	$(sql) migrates.sql
+	$(sql) selects2.sql
+	$(dump) export2.sql
 	mv *.sql $(folder)
 	make clean
 
