@@ -220,7 +220,7 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, std::string j
 	for(unsigned int i = 0; i < size - 1; ++i) {
 		found[i].type = type[i];
 	}
-	std::string sql_query = toUpper(std::string("select "), upper) + wich->name + std::string(".id ");
+	std::string sql_query = toUpper(std::string("\nselect "), upper) + wich->name + std::string(".id ");
 	sql_query += toUpper(std::string("from "), upper) + wich->name + std::string("\n");
 	last = wich;
 	for(Connection connection: found) {

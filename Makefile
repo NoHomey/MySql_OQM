@@ -14,6 +14,9 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	./sql
 	mkdir -p $(folder)
+	mv *.sql $(folder)
+	make clean
+	cd $(folder)
 	$(sql) creates.sql
 	$(sql) inserts.sql
 	$(dump) export1.sql
@@ -21,8 +24,6 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(sql) migrates.sql
 	$(sql) selects2.sql
 	$(dump) export2.sql
-	mv *.sql $(folder)
-	make clean
 
 toUpper.o:
 	$(compile) -c toUpper.cc
