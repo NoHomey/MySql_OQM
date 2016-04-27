@@ -22,7 +22,17 @@ bool DB::not_in(Table* T) {
 }
 
 void DB::connection(ConnectionType type, Table* T1, Table* T2) {
-	connections.push_back({.type = type, .from = T1, .to = T2});
+	if(type == ConnectionType::many_to_many) {
+		connections.push_back({.type = type, .from = T1, .to = T2});
+	} else {
+		connections.insert(connections.begin(), {.type = type, .from = T1, .to = T2});
+	}
+}
+
+void DB::add_if_missing(Table* T) {
+	if(not_in(T)) {
+		tables.insert(tables.begin(), T);
+	}
 }
 
 void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
@@ -30,12 +40,8 @@ void DB::many_to_many(Table* T1, Table* T2, Table* T3) {
 	T3->name.swap(name);
 	T3->key(T2, Type::Key());
 	T3->key(T1, Type::Key());
-	if(not_in(T1)) {
-		tables.push_back(T1);
-	}
-	if(not_in(T2)) {
-		tables.push_back(T2);
-	}
+	add_if_missing(T1);
+	add_if_missing(T2);
 	tables.push_back(T3);
 	connection(ConnectionType::many_to_many, T1, T2);
 }
@@ -71,12 +77,6 @@ void DB::one_to_one(Table* T1, Table* T2) {
 	T1->key(T2, Type::UniqueKey());
 	add_tables(T1, T2);
 	connection(ConnectionType::one_to_one, T1, T2);
-}
-
-void DB::add_if_missing(Table* T) {
-	if(not_in(T)) {
-		tables.insert(tables.begin(), T);
-	}
 }
 
 std::string DB::create(void) {
