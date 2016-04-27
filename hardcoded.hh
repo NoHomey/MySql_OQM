@@ -23,7 +23,7 @@ std::string price_(unsigned int i);
 std::string created_on_(unsigned int i);
 std::string url_(unsigned int i);
 std::string content_(unsigned int i);
-std::string visble_(unsigned int i);
+std::string visible_(unsigned int i);
 std::string password_(unsigned int i);
 std::string description_(unsigned int i);
 std::string date_created_on_(unsigned int i);

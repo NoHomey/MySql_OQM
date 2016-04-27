@@ -104,7 +104,7 @@ std::string url_(unsigned int i) {
 std::string content_(unsigned int i) {
 	return std::string("\"It should have some content at page ") + std::to_string(i) + std::string("\"");
 }
-std::string visble_(unsigned int i) {
+std::string visible_(unsigned int i) {
 	return std::to_string(i % 2);
 }
 std::string password_(unsigned int i) {

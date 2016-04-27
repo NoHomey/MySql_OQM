@@ -1,6 +1,6 @@
 compile=g++ -std=c++11 -Wall
 
-folder=Ivo_Stratev_B_16
+folder=Borislav_Stratev_B_2
 
 db=exam
 
@@ -53,3 +53,8 @@ run_sql:
 
 dumb:
 	mysqldumb $(db) > file.sql
+
+generate_exam:
+	rm -f exam.txt
+	prev=1
+	ruby $(repo)/generate_exams/main.rb $(num) > exam.txt
