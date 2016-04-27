@@ -1,14 +1,14 @@
-compile = g++ -std=c++11 -Wall
+compile=g++ -std=c++11 -Wall
 
-folder = Ivo_Stratev_B_16
+folder=Ivo_Stratev_B_16
 
-db = exam
+db=exam
 
-user = -u ivo
+user=-u ivo
 
-sql = mysql $(user) <
+sql=mysql $(user) <
 
-dump = mysqldump $(user) $(db) >
+dump=mysqldump $(user) $(db) >
 
 all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
@@ -16,14 +16,13 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	mkdir -p $(folder)
 	mv *.sql $(folder)
 	make clean
-	cd $(folder)
-	$(sql) creates.sql
-	$(sql) inserts.sql
-	$(dump) export1.sql
-	$(sql) selects1.sql
-	$(sql) migrates.sql
-	$(sql) selects2.sql
-	$(dump) export2.sql
+	$(sql) $(folder)/creates.sql
+	$(sql) $(folder)/inserts.sql
+	$(dump) $(folder)/export1.sql
+	$(sql) $(folder)/selects1.sql
+	$(sql) $(folder)/migrates.sql
+	$(sql) $(folder)/selects2.sql
+	$(dump) $(folder)/export2.sql
 
 toUpper.o:
 	$(compile) -c toUpper.cc

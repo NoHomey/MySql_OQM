@@ -49,8 +49,7 @@ int main(void) {
 	inserts << db.use() << db.insert(7);
 
 	std::ofstream selects1("selects1.sql", std::ios::out);
-	selects1 << db.use();
-	selects1 << db.select(&tag, &category, 2);
+	selects1 << db.use() << db.select(&tag, &category, 2);
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
 	Table migrate("Article_1_part1");
@@ -60,8 +59,7 @@ int main(void) {
 	migrates << db.migrate(&migrate, fields, &article, std::string("Article_1_part2"));
 
 	std::ofstream selects2("selects2.sql", std::ios::out);
-	selects2 << db.use();
-	selects2 << db.select(&user, &article, 2);
+	selects2 << db.use() << db.select(&user, &article, 2);
 
 	return 0;
 }

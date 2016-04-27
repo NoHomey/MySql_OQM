@@ -6,6 +6,13 @@
 #include "Table.hh"
 #include "Connection.hh"
 
+enum JoinType {
+	inner,
+	left,
+	right,
+	outer
+};
+
 class DB {
 public:
 	static bool upper;
@@ -19,7 +26,7 @@ public:
 	std::string insert(unsigned int count);
 	std::string use(void);
 	std::string migrate(Table* T1, std::vector<std::string> fields, Table* T2, std::string name);
-	std::string select(Table* wich, Table* given, unsigned int id, std::string join_type = std::string("inner join"));
+	std::string select(Table* wich, Table* given, unsigned int id, enum JoinType join_type = JoinType::inner);
 	std::string name;
 	std::vector<Table*> tables;
 	std::vector<Connection> connections;
