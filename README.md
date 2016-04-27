@@ -1,6 +1,14 @@
 # MySql_OQM
 MySql Object Querry Mapper
 
+# Creating no password mysql user:
+
+```sql
+create user 'ivo@localhost';
+grant all privileges on *.* to 'ivo'@'localhost' with grant option;
+/* mysql -u ivo */
+```
+
 # Makefile:
 
 ```makefile
@@ -452,12 +460,12 @@ int main(void) {
 	std::ofstream selects2("selects2.sql", std::ios::out);
 	selects2 << db.use();
 	selects2 << db.select(&user, &tag, JoinType::inner, 2);
-	selects2 << db.select(&user, &tag, JoinType::left);
+	/*selects2 << db.select(&user, &tag, JoinType::left);
 	selects2 << db.select(&user, &tag, JoinType::right);
 	selects2 << db.select(&user, &tag, JoinType::outer);
 	selects2 << db.select(&user, &tag, JoinType::left_excld);
 	selects2 << db.select(&user, &tag, JoinType::right_excld);
-	selects2 << db.select(&user, &tag, JoinType::outer_excld);
+	selects2 << db.select(&user, &tag, JoinType::outer_excld);*/
 
 	return 0;
 }
@@ -510,4 +518,38 @@ ivo@ivo-Inspiron-5558:~/MySql_OQM$ ls Borislav_Stratev_B_2/
 creates.sql  inserts.sql  migrates.sql  selects1.sql  selects2.sql
 ivo@ivo-Inspiron-5558:~/MySql_OQM$ 
 
+```
+
+## With mysql and access:
+
+```
+ivo@ivo-Inspiron-5558:~/MySql_OQM$ make
+rm -f *.o sql *.sql
+g++ -std=c++11 -Wall -c toUpper.cc
+g++ -std=c++11 -Wall -c Table.cc
+g++ -std=c++11 -Wall -c Connection.cc
+g++ -std=c++11 -Wall -c DB.cc
+g++ -std=c++11 -Wall -c Pattern.cc
+g++ -std=c++11 -Wall -c Type.cc
+g++ -std=c++11 -Wall -c hardcoded.cc
+g++ -std=c++11 -Wall -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
+./sql
+mkdir -p Borislav_Stratev_B_2
+mv *.sql Borislav_Stratev_B_2
+make clean
+make[1]: Entering directory `/home/ivo/MySql_OQM'
+rm -f *.o sql *.sql
+make[1]: Leaving directory `/home/ivo/MySql_OQM'
+mysql -u ivo < Borislav_Stratev_B_2/creates.sql
+mysql -u ivo < Borislav_Stratev_B_2/inserts.sql
+mysqldump -u ivo exam > Borislav_Stratev_B_2/export1.sql
+mysql -u ivo < Borislav_Stratev_B_2/selects1.sql
+id
+2
+mysql -u ivo < Borislav_Stratev_B_2/migrates.sql
+mysql -u ivo < Borislav_Stratev_B_2/selects2.sql
+id
+1
+mysqldump -u ivo exam > Borislav_Stratev_B_2/export2.sql
+ivo@ivo-Inspiron-5558:~/MySql_OQM$
 ```
