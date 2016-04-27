@@ -58,3 +58,9 @@ generate_exam:
 	rm -f exam.txt
 	prev=1
 	ruby $(repo)/generate_exams/main.rb $(num) > exam.txt
+
+publish:
+	mkdir ./../NoHomey-_Rep/sql/new_$(n)
+	mv exam.txt ./../NoHomey-_Rep/sql/new_$(n)
+	cp sql.cc ./../NoHomey-_Rep/sql/new_$(n)
+	cd ../NoHomey-_Rep && git add -A && git commit -m "one more" && git push

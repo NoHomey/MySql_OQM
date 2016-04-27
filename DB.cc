@@ -153,9 +153,19 @@ Table* DB::find_connection_table(Connection connection) {
 	return *it;
 }
 
-std::string DB::select(Table* wich, Table* given, unsigned int id, enum JoinType join_type) {
+std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsigned int id) {
 	if((id > inserted) && (id > 0)) {
 		throw std::invalid_argument("id must be from 1 to number of inserts (including)");
+	}
+	if(join_type == JoinType::outer) {
+		std::string sql_query = select(wich, given, JoinType::left);
+		sql_query.pop_back();
+		sql_query.pop_back();
+		sql_query += toUpper(std::string("\nunion all"), upper);
+		sql_query += select(wich, given, JoinType::right);
+		sql_query.pop_back();
+		sql_query.pop_back();
+		return sql_query + std::string(";\n");
 	}
 	std::vector<Table*> search;
 	std::vector<Table*> visited;
@@ -224,37 +234,40 @@ std::string DB::select(Table* wich, Table* given, unsigned int id, enum JoinType
 	sql_query += toUpper(std::string("from "), upper) + wich->name + std::string("\n");
 	last = wich;
 	for(Connection connection: found) {
-		if(join_type != JoinType::outer) {
-			std::string join_str;
-			switch(join_type) {
-				case left:
-					join_str = std::string("left");
-					break;
-				case right:
-					join_str = std::string("right");
-					break;
-				default:
-					join_str = std::string("inner");
-					break;
-			}
-			join_str += std::string(" join");
-			if(connection.type != ConnectionType::many_to_many) {
-				sql_query += toUpper(join_str, upper) + std::string(" ") + connection[last]->name;
-				sql_query += toUpper(std::string(" on "), upper) + connection.from->name + std::string(".");
-				sql_query += connection.from->keys[connection.to] + std::string(" = ") + connection.to->name + std::string(".id\n");
-			} else {
-				checked = find_connection_table(connection);
-				sql_query += toUpper(join_str, upper) + std::string(" ") + checked->name;
-				sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
-				sql_query += checked->keys[last] + std::string(" = ") + last->name + std::string(".id\n");
-				sql_query += toUpper(join_str, upper) + std::string(" ") + connection[last]->name;
-				sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
-				sql_query += checked->keys[connection[last]] + std::string(" = ") + connection[last]->name + std::string(".id\n");
-			}
+		std::string join_str;
+		switch(join_type) {
+			case left:
+				join_str = std::string("left");
+				break;
+			case right:
+				join_str = std::string("right");
+				break;
+			default:
+				join_str = std::string("inner");
+				break;
+		}
+		join_str += std::string(" join");
+		if(connection.type != ConnectionType::many_to_many) {
+			sql_query += toUpper(join_str, upper) + std::string(" ") + connection[last]->name;
+			sql_query += toUpper(std::string(" on "), upper) + connection.from->name + std::string(".");
+			sql_query += connection.from->keys[connection.to] + std::string(" = ") + connection.to->name + std::string(".id\n");
+		} else {
+			checked = find_connection_table(connection);
+			sql_query += toUpper(join_str, upper) + std::string(" ") + checked->name;
+			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
+			sql_query += checked->keys[last] + std::string(" = ") + last->name + std::string(".id\n");
+			sql_query += toUpper(join_str, upper) + std::string(" ") + connection[last]->name;
+			sql_query += toUpper(std::string(" on "), upper) + checked->name + std::string(".");
+			sql_query += checked->keys[connection[last]] + std::string(" = ") + connection[last]->name + std::string(".id\n");
 		}
 		last = connection[last];
 	}
-	sql_query += toUpper(std::string("where "), upper) + given->name;
-	sql_query += std::string(".id = ") + std::to_string(id) + std::string(";\n");
+	if(join_type == JoinType::inner) {
+		sql_query += toUpper(std::string("where "), upper) + given->name;
+		sql_query += std::string(".id = ") + std::to_string(id);
+	} else {
+		sql_query.pop_back();
+	}
+	sql_query += std::string(";\n");
 	return sql_query;
 }
