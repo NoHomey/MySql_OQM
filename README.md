@@ -96,7 +96,7 @@ std::string second_priority_(unsigned int i);
 
 ```c++
 std::string my_field(unsigned int i) {
-  return std::string("\"My Field№\"") + std::to_string(i); // Note the escaping quotes -> it will be evaled as string when generating inserts.
+  return std::string("\"My Field# ") + std::to_string(i) + std::string("\""); // Note the escaping quotes -> it will be evaled as string when generating inserts.
 }
 
 article.field("my_field", std::string("tinyblob"), my_field, false); // Note that all sql types need to be written is lower case. Setting random to false -> my_field will be called with [1..num of inserts].
