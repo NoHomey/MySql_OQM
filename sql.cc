@@ -15,27 +15,27 @@ int main(void) {
 	DB db("exam");
 
 	Table article("Article_1");
-	article.field("visible", boolean_(), visible_);
 	article.field("password", string_(), password_);
-	article.field("name", varchar_(), name_);
+	article.field("created_on", date_(), created_on_);
+	article.field("visible", boolean_(), visible_);
 
 	Table category("Category");
-	category.field("name", varchar_(), name_);
-	category.field("date_created_on", date_(), date_created_on_);
+	category.field("priority_double", double_(), priority_double_);
+	category.field("name", varchar_(),name_);
 
 	Table user("User");
 	user.field("created_on", date_(), created_on_);
-	user.field("description", long_text_(), description_);
-	user.field("picture_url", string_(), picture_url_);
+	user.field("age", integer_(), age_);
+	user.field("gender", varchar_6_(), gender_);
 
 	Table tag("Tag");
-	tag.field("second_priority", float_(), second_priority_);
+	tag.field("priority_int", int_(), priority_int_);
 	tag.field("description", varchar_(), description_);
 
-	Table user_article;
-	db.many_to_one(&category, &tag);
-	db.one_to_one(&tag, &article);
-	db.one_to_one(&article, &user);
+	Table category_article;
+	db.many_to_many(&category, &article, &category_article);
+	db.one_to_one(&user, &tag);
+	db.many_to_one(&tag, &category);
 
 	db.add_if_missing(&article);
 	db.add_if_missing(&category);
@@ -46,11 +46,11 @@ int main(void) {
 	creates << db.create();
 
 	std::ofstream inserts("inserts.sql", std::ios::out);
-	inserts << db.use() << db.insert(3);
+	inserts << db.use() << db.insert(6);
 
-	std::ofstream selects1("selects1.sql", std::ios::out);
+	/*std::ofstream selects1("selects1.sql", std::ios::out);
 	selects1 << db.use();
-	selects1 << db.select(&article, &category, JoinType::inner, 3);
+	selects1 << db.select(&category, &user, JoinType::inner, 3);
 
 	std::ofstream migrates("migrates.sql", std::ios::out);
 	Table migrate("Tag_part1");
@@ -61,8 +61,9 @@ int main(void) {
 
 	std::ofstream selects2("selects2.sql", std::ios::out);
 	selects2 << db.use();
-	selects2 << db.select(&user, &tag, JoinType::inner, 2);
-	/*selects2 << db.select(&user, &tag, JoinType::left);
+	selects2 << db.select(&article, &tag, JoinType::inner, 2);
+
+	selects2 << db.select(&user, &tag, JoinType::left);
 	selects2 << db.select(&user, &tag, JoinType::right);
 	selects2 << db.select(&user, &tag, JoinType::outer);
 	selects2 << db.select(&user, &tag, JoinType::left_excld);

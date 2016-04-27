@@ -18,11 +18,11 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	make clean
 	$(sql) $(folder)/creates.sql
 	$(sql) $(folder)/inserts.sql
-	$(dump) $(folder)/export1.sql
-	$(sql) $(folder)/selects1.sql
-	$(sql) $(folder)/migrates.sql
-	$(sql) $(folder)/selects2.sql
-	$(dump) $(folder)/export2.sql
+	#$(dump) $(folder)/export1.sql
+	#$(sql) $(folder)/selects1.sql
+	#$(sql) $(folder)/migrates.sql
+	#$(sql) $(folder)/selects2.sql
+	#$(dump) $(folder)/export2.sql
 
 toUpper.o:
 	$(compile) -c toUpper.cc

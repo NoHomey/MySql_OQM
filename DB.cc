@@ -50,8 +50,8 @@ void DB::add_tables(Table* T1, Table* T2) {
 		std::vector<Table*>::iterator find_T1 = std::find(begin, end, T1);
 		std::vector<Table*>::iterator find_T2 = std::find(begin, end, T2);
 		if(find_T1 == end) {
-			tables.insert(find_T2 + 1, T1);
-		} else {
+			tables.insert(find_T2 + (int)(find_T2 != end), T1);
+		} else if(find_T2 == end) {
 			tables.insert(find_T1, T2);
 		}
 	}
