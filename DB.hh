@@ -10,7 +10,10 @@ enum JoinType {
 	inner,
 	left,
 	right,
-	outer
+	outer,
+	left_excld,
+	right_excld,
+	outer_excld
 };
 
 class DB {

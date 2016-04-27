@@ -28,8 +28,7 @@ std::string Table::create(void) {
 	  sql_query += toUpper(std::string(") references "), upper) + key.first->name + std::string(" (id),");
   }
   sql_query.pop_back();
-  sql_query += std::string("\n);\n");
-  return sql_query;
+  return sql_query + std::string("\n);\n");
 }
 
 std::string Table::insert(unsigned int count) {
@@ -63,6 +62,5 @@ std::string Table::insert(unsigned int count) {
 		sql_query += std::string("),");
 	}
 	sql_query.pop_back();
-	sql_query += std::string(";\n");
-	return sql_query;
+	return sql_query + std::string(";\n");
 }

@@ -157,15 +157,28 @@ std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsig
 	if((id > inserted) && (id > 0)) {
 		throw std::invalid_argument("id must be from 1 to number of inserts (including)");
 	}
-	if(join_type == JoinType::outer) {
+	if((join_type == JoinType::left_excld) || (join_type == JoinType::right_excld)) {
+		std::string sql_query = select(wich, given, join_type == JoinType::left_excld ? JoinType::left : JoinType::right);
+		sql_query.pop_back();
+		sql_query.pop_back();
+		sql_query += toUpper(std::string("\nwhere "), upper) + (join_type == JoinType::left_excld ? given->name : wich->name);
+		sql_query += std::string(".id ") + toUpper(std::string("is null"), upper);
+		return sql_query + std::string(";\n");
+	}
+	if((join_type == JoinType::outer) || (join_type == JoinType::outer_excld)) {
 		std::string sql_query = select(wich, given, JoinType::left);
 		sql_query.pop_back();
 		sql_query.pop_back();
 		sql_query += toUpper(std::string("\nunion all"), upper);
-		sql_query += select(wich, given, JoinType::right);
-		sql_query.pop_back();
-		sql_query.pop_back();
-		return sql_query + std::string(";\n");
+		sql_query += select(wich, given, join_type == JoinType::outer ? JoinType::right : JoinType::right_excld);
+		if(join_type == JoinType::outer_excld) {
+			sql_query.pop_back();
+			sql_query.pop_back();
+			sql_query += toUpper(std::string(" or "), upper) + given->name;
+			sql_query += std::string(".id ") + toUpper(std::string("is null"), upper);
+			return sql_query + std::string(";\n");
+		}
+		return sql_query;
 	}
 	std::vector<Table*> search;
 	std::vector<Table*> visited;
@@ -268,6 +281,5 @@ std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsig
 	} else {
 		sql_query.pop_back();
 	}
-	sql_query += std::string(";\n");
-	return sql_query;
+	return sql_query + std::string(";\n");
 }

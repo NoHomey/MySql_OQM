@@ -46,7 +46,7 @@ int main(void) {
 	creates << db.create();
 
 	std::ofstream inserts("inserts.sql", std::ios::out);
-	inserts << db.use() << db.insert(7);
+	inserts << db.use() << db.insert(3);
 
 	std::ofstream selects1("selects1.sql", std::ios::out);
 	selects1 << db.use();
@@ -62,6 +62,12 @@ int main(void) {
 	std::ofstream selects2("selects2.sql", std::ios::out);
 	selects2 << db.use();
 	selects2 << db.select(&user, &tag, JoinType::inner, 2);
+	/*selects2 << db.select(&user, &tag, JoinType::left);
+	selects2 << db.select(&user, &tag, JoinType::right);
+	selects2 << db.select(&user, &tag, JoinType::outer);
+	selects2 << db.select(&user, &tag, JoinType::left_excld);
+	selects2 << db.select(&user, &tag, JoinType::right_excld);
+	selects2 << db.select(&user, &tag, JoinType::outer_excld);*/
 
 	return 0;
 }
