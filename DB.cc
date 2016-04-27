@@ -182,18 +182,19 @@ std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsig
 	}
 	std::vector<Table*> search;
 	std::vector<Table*> visited;
-	std::vector<Table*>::iterator visited_end;
+	std::vector<Table*>::iterator table_end;
 	std::vector<Connection> path;
 	std::vector<Connection> found;
-	std::vector<Connection>::iterator path_end;
+	std::vector<Connection>::iterator conn_end;
 	Table* checked;
+	unsigned int size;
 	Table* last = wich;
 	search.push_back(last);
 	bool pushed;
 	while(last != given) {
-		visited_end = visited.end();
+		table_end = visited.end();
 		found = get_connections(last);
-		if((!found.size()) || (std::find(visited.begin(), visited_end, last) != visited_end)) {
+		if((!found.size()) || (std::find(visited.begin(), table_end, last) != table_end)) {
 			search.pop_back();
 			if(path.back()[last] == search.back()) {
 				search.pop_back();
@@ -204,15 +205,20 @@ std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsig
 		pushed = false;
 		visited.push_back(last);
 		for(Connection connection: found) {
-			path_end = path.end();
-			if(std::find(path.begin(), path_end, connection) != path_end) {
+			conn_end = path.end();
+			if(std::find(path.begin(), conn_end, connection) != conn_end) {
 				continue;
 			}
 			checked = connection[last];
+			table_end = search.end();
+			if(std::find(search.begin(), table_end, checked) != table_end) {
+				continue;
+			}
 			search.push_back(checked);
 			path.push_back(connection);
 			pushed = true;
 			if(checked == given) {
+				visited.push_back(checked);
 				break;
 			}
 		}
@@ -220,23 +226,23 @@ std::string DB::select(Table* wich, Table* given, enum JoinType join_type, unsig
 			last = path.back()[last];
 		}
 	}
+	table_end = visited.end();
+	std::vector<Table*>::iterator visited_begin = visited.begin();
+	for(Table* table: search) {
+		if(std::find(visited_begin, table_end, table) == table_end) {
+			search.erase(std::find(search.begin(), search.end(), table));
+		}
+	}
 	found.clear();
 	std::vector<ConnectionType> type;
-	unsigned int size = search.size();
-	for(unsigned int i = 1; i < size; ++i) {
-		for(Connection connection: connections) {
-			if((connection.from == search[i]) && (connection.to == search[i - 1])) {
-				path_end = found.end();
-				if(std::find(found.begin(), path_end, connection) == path_end) {
-					found.push_back(connection);
-					type.push_back(connection.type);
-				}
-			} else if((connection.to == search[i]) && (connection.from == search[i - 1])) {
-				path_end = found.end();
-				if(std::find(found.begin(), path_end, connection) == path_end) {
-					found.push_back(connection);
-					type.push_back(connection.type);
-				}
+	size = search.size();
+	for(unsigned int i = 0; i < size - 1; ++i) {
+		path = get_connections(search[i]);
+		for(Connection connection: path) {
+			conn_end = found.end();
+			if((connection[search[i]] == search[i + 1]) && (std::find(found.begin(), conn_end, connection) == conn_end)) {
+				found.push_back(connection);
+				type.push_back(connection.type);
 			}
 		}
 	}
