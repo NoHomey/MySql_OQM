@@ -553,3 +553,7 @@ id
 mysqldump -u ivo exam > Borislav_Stratev_B_2/export2.sql
 ivo@ivo-Inspiron-5558:~/MySql_OQM$
 ```
+
+# Examples:
+
+https://github.com/NoHomey/NoHomey-_Rep/tree/master/sql
