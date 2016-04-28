@@ -1,3 +1,9 @@
+#make get class=А/Б num=[1..29]
+#make
+#make picture
+#make tar
+#make post
+
 compile=g++ -std=c++11 -Wall
 
 folder=Borislav_Stratev_B_2
@@ -6,7 +12,7 @@ db=exam
 
 user=-u ivo
 
-ip=192.168.113.98
+ip=192.168.0.103
 
 sql=mysql $(user) <
 
@@ -29,8 +35,7 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(dump) $(folder)/export2.sql
 
 get:
-	mkdir -p exam
-	scp $(exams)/*$(num)* ./exam
+	scp $(exams)/$(class)_$(num)_* .
 
 tar:
 	tar -zcvf $(folder).tar.gz $(folder)
@@ -40,6 +45,9 @@ zip:
 
 post:
 	scp $(folder).* $(exams)/
+
+picture:
+	mysql-workbench
 
 rm_folder:
 	rm -Rf $(folder)*
