@@ -12,14 +12,35 @@ grant all privileges on *.* to 'ivo'@'localhost' with grant option;
 # Makefile:
 
 ```makefile
-folder=Borislav_Stratev_B_2 # FirstName_LastName_Class_Number
 
-db=exam # DB_Name
+folder=Borislav_Stratev_B_2# Folder FirstName_LastName_Class_Number
 
-user=ivo # Mysql_UserName
+db=exam# DB Name
 
-$make all # Generates all sql files in $(folder) if $mysql can be accesed with $(user) then exports are also generated.
+user=ivo# mysql user Name
 
+ip=192.168.0.103# machine IP
+
+$make all# Generates all sql files in $(folder) if $mysql can be accesed with $(user) then exports are also generated.
+
+$make get class=А/Б num=[1..29]# gets exam
+
+$make picture# opens mysql-workbench
+
+$make tar/zip# generates archive
+
+$make post# posts exam
+
+```
+
+# Sequence example:
+
+```
+make get class=Б num=2
+make
+make picture
+make tar
+make post
 ```
 
 # mysql.cc:
