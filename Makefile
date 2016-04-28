@@ -6,9 +6,13 @@ db=exam
 
 user=-u ivo
 
+ip=192.168.113.98
+
 sql=mysql $(user) <
 
 dump=mysqldump $(user) $(db) >
+
+exams=student@$(ip):/home/student/local/subd_exam
 
 all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(compile) -o sql sql.cc toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
@@ -23,6 +27,22 @@ all: clean toUpper.o Table.o Connection.o DB.o Pattern.o Type.o hardcoded.o
 	$(sql) $(folder)/migrates.sql
 	$(sql) $(folder)/selects2.sql
 	$(dump) $(folder)/export2.sql
+
+get:
+	mkdir -p exam
+	scp $(exams)/*$(num)* ./exam
+
+tar:
+	tar -zcvf $(folder).tar.gz $(folder)
+
+zip:
+	zip -r $(folder).zip $(folder)
+
+post:
+	scp $(folder).* $(exams)/
+
+rm_folder:
+	rm -Rf $(folder)*
 
 toUpper.o:
 	$(compile) -c toUpper.cc
@@ -57,7 +77,7 @@ dumb:
 generate_exam:
 	rm -f exam.txt
 	prev=1
-	ruby $(repo)/generate_exams/main.rb $(num) > exam.txt
+	ruby ./../elsys-db-practices/generate_exams/main.rb $(num) > exam.txt
 
 publish:
 	mkdir ./../NoHomey-_Rep/sql/new_$(n)

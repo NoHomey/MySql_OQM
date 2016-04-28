@@ -6,7 +6,7 @@
 #include "Pattern.hh"
 #include "Type.hh"
 
-#include "hardcoded.hh" //192.168.113.98
+#include "hardcoded.hh"
 
 bool Table::upper = false;
 bool DB::upper = false;
