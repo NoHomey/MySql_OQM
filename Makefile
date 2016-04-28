@@ -10,13 +10,13 @@ folder=Borislav_Stratev_B_2
 
 db=exam
 
-user=-u ivo
+user=ivo
 
 ip=192.168.0.103
 
-sql=mysql $(user) <
+sql=mysql -u $(user) <
 
-dump=mysqldump $(user) $(db) >
+dump=mysqldump -u $(user) $(db) >
 
 exams=student@$(ip):/home/student/local/subd_exam
 
