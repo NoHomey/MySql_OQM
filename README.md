@@ -290,6 +290,12 @@ insert into Category (name, date_created_on, Tag_id) values
 
 ```c++
 selects1 << db.select(&article, &category, JoinType::inner, 3); // std::string select(Table* wich, Table* given, enum JoinType join_type, unsigned int id = 0);
+
+//working even for 3 many to many connections:
+Table t1, t2, t3;
+db.many_to_many(&tag, &user, &t1);
+db.many_to_many(&user, &article, &t2);
+db.many_to_many(&article, &category, &t3);
 ```
 
 ### Joining:
