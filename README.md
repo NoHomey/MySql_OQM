@@ -4,8 +4,8 @@ MySql Object Querry Mapper
 # Creating no password mysql user:
 
 ```sql
-create user 'ivo@localhost';
-grant all privileges on *.* to 'ivo@localhost' with grant option;
+create user 'ivo'@'localhost';
+grant all privileges on *.* to 'ivo'@'localhost' with grant option;
 /* mysql -u ivo */
 ```
 
