@@ -1,5 +1,5 @@
 # mysql-oqm
-MySql Object Querry Mapper started as automatic [elsys-db-practices](https://github.com/thebravoman/elsys-db-practices) test maker, ecessor of [db-machine](https://github.com/NoHomey/db-machine.
+MySql Object Querry Mapper started as automatic [elsys-db-practices](https://github.com/thebravoman/elsys-db-practices) test maker, ecessor of [db-machine](https://github.com/NoHomey/db-machine).
 
 "Пускаш скрипта и готово ;)" - You run the script and it's done ;)
 
